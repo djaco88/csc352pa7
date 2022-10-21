@@ -27,6 +27,9 @@ MQDecisionTreeNode* createNode(char txt[]){
   mq->answers = NULL; 
 }
 
+// this helper function should traverse the tree,
+// find the leaf nodes, and create new leaf nodes
+// as the childen of the previous leaf nodes
 void addNode(MQDecisionTreeNode* node, char txt[], int levels){
   if (node->yes == NULL || node->no == NULL){
     node->yes = createNode(txt);
@@ -37,28 +40,38 @@ void addNode(MQDecisionTreeNode* node, char txt[], int levels){
     addNode(node->no, txt);
   }
 }
-//                                         
+
+// This function will look at only the second line of the input file
+// This line will house all of the questions for the mq game
+// The first question will be used to create the root node
+// Each question will be added as both children of all the 
+// leaf nodes on the tree.
+// The tree will be returned                                        
 MQDecisionTree* mqBuildTree(char* file_name){
 
   FILE* mqFile = fopen(argv[1], "r");
-
   if (mqFile == NULL){ fprintf(stderr, "bad\n"); return 1;} 
-  
-  int numItems = 0;
+ 
+  // flag to locate the second line in the file 
   int flag = 0; 
+  
+  // create the tree
   MQDecisionTree* root = malloc(sizeof(MQDecisionTree));
+
   // the buffer limit may be iffy.
   // change to large number before submission-------------------------------------------------------------------
   char buffer[1051];
   while (fgets(buffer,1050,playersData) != NULL){
     if (flag == 0){
-      numItems = atoi(buffer);
       flag++;
     }
     int bufferIndex=0;
     int questionIndex=0;
     char question[51];
     int qNumber = 0;
+    // loop through each char in the 2nd line of the buffer
+    // at each ',' add the stored char[] as nodes to all leaves
+    // in the tree
     while(buffer[bufferIndex] != '\0'){
       //Just in case, make sure no question in more than 50 chars
       if (questionIndex == 52 || bufferIndex > 1050){
@@ -68,9 +81,12 @@ MQDecisionTree* mqBuildTree(char* file_name){
       if (buffer[index] == ','){
         question[questionIndex] = '\0';
         qNumber++;
+        // create the root node and set it in the tree
         if (qNumber == 1){
           root->root = createNode(question);
-        } else {
+        } 
+        // add new nodes to leaves
+        else {
 	  addNode(root->root, question, qNum);
         }
         questionIndex = 0;
@@ -87,9 +103,65 @@ MQDecisionTree* mqBuildTree(char* file_name){
   return newMq;
 }
                                            
-//                                         
-void MQ_populate_tree(MQDecisionTree* tree, char* file_name){
+// goes through all the items in the file and adds
+// them to the tree in the correct places                                         
+void mqPopulateTree(MQDecisionTree* tree, char* file_name){
 
+  FILE* mqFile = fopen(argv[1], "r");
+  if (mqFile == NULL){ fprintf(stderr, "bad\n"); return 1;} 
+ 
+  // flag to locate the 3+ lines in the file 
+  int flag = 0; 
+    
+
+  // the buffer limit may be iffy.
+  // change to large number before submission-------------------------------------------------------------------
+  char buffer[1051];
+  while (fgets(buffer,1050,playersData) != NULL){
+    // I think I can take this out------------------------------------------------------------------------------
+    if (flag == 0){
+      numItems = atoi(buffer);
+      flag++;
+    } else if (flag == 1){
+      flag++;
+    } else {
+
+    int bufferIndex=0;
+    int itemIndex=0;
+    char item[51];
+    char itemName[51];
+    int iNumber = 0;
+    // loop through each char in the 2nd line of the buffer
+    // at each ',' add the stored char[] as nodes to all leaves
+    // in the tree
+    while(buffer[bufferIndex] != '\0'){
+      //Just in case, make sure no item in more than 50 chars
+      if (itemIndex == 52 || bufferIndex > 1050){
+        printf("ERROR: item length out of bounds OR buffer line wrap issues");
+      }
+      if (buffer[index] == ','){
+        item[itemIndex] = '\0';
+        iNumber++;
+        // save name and find where to insert the node
+        if (iNumber == 1){
+          // this may cause problems ----------------------------------------------------------------
+          itemName == item;
+        } 
+        // add new nodes to leaves
+        else {
+	  addNode(root->root, item, qNum);
+        }
+        itemIndex = 0;
+        bufferIndex++;
+      } 
+      else {
+        item[itemIndex] = buffer[bufferIndex]; 
+        itemIndex++;
+        bufferIndex++;
+    }
+  }
+  fflush(mqFile);
+  fclose(mqFile);
 }
                                            
 //                                         
