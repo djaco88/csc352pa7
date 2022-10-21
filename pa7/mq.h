@@ -2,8 +2,8 @@
 Purpose:
 */
 
-#ifndef BT_H   
-#define BT_H
+//#ifndef BT_H   
+//#define BT_H
             
 typedef struct MQDecisionTreeNode {
 char text[50];

@@ -6,14 +6,19 @@ Purpose: implement the zstr library fucntion
 #include <stdio.h>
 #include "mq.h"
 
+//
+void printNodes(MQDecisionTreeNode* node){
+  // NEED TO IMPLEMENT A BASE CASE FOR NULL CHILDREN
+  printf("%s\n", node->text);
+  printf("-y-> ");
+  printNodes(node->yes);
+  printf("-n-> ");
+  printNodes(node->no);
+}
+
 //                                         
 void MQ_print_tree(MQDecisionTree* root){
-  // may have to do root->root->variable
-  printf("%s\n", root->txt);
-  printf("-y-> ");
-  MQ_print_tree(root->yes);
-  printf("-n-> ");
-  MQ_print_tree(root->no);
+  printNodes(root->root);
 }
 
 // build single node
@@ -30,7 +35,7 @@ MQDecisionTreeNode* createNode(char txt[]){
 // this helper function should traverse the tree,
 // find the leaf nodes, and create new leaf nodes
 // as the childen of the previous leaf nodes
-void addNode(MQDecisionTreeNode* node, char txt[], int levels){
+void addNode(MQDecisionTreeNode* node, char txt[]){
   if (node->yes == NULL || node->no == NULL){
     node->yes = createNode(txt);
     node->no = createNode(txt);
@@ -47,13 +52,14 @@ void addNode(MQDecisionTreeNode* node, char txt[], int levels){
 // Each question will be added as both children of all the 
 // leaf nodes on the tree.
 // The tree will be returned                                        
-MQDecisionTree* mqBuildTree(char* file_name){
+MQDecisionTree* mqBuildTree(char* fileName){
 
-  FILE* mqFile = fopen(argv[1], "r");
-  if (mqFile == NULL){ fprintf(stderr, "bad\n"); return 1;} 
+  FILE* mqFile = fopen(fileName, "r");
+  if (mqFile == NULL){ fprintf(stderr, "bad\n"); return NULL;} 
  
   // flag to locate the second line in the file 
   int flag = 0; 
+  char question[51];
   
   // create the tree
   MQDecisionTree* root = malloc(sizeof(MQDecisionTree));
@@ -61,13 +67,12 @@ MQDecisionTree* mqBuildTree(char* file_name){
   // the buffer limit may be iffy.
   // change to large number before submission-------------------------------------------------------------------
   char buffer[1051];
-  while (fgets(buffer,1050,playersData) != NULL){
+  while (fgets(buffer,1050,mqFile) != NULL){
     if (flag == 0){
       flag++;
     }
     int bufferIndex=0;
     int questionIndex=0;
-    char question[51];
     int qNumber = 0;
     // loop through each char in the 2nd line of the buffer
     // at each ',' add the stored char[] as nodes to all leaves
@@ -78,7 +83,7 @@ MQDecisionTree* mqBuildTree(char* file_name){
         printf("ERROR: question length out of bounds OR buffer line wrap issues");
       }
       // need to connect nodes to tree
-      if (buffer[index] == ','){
+      if (buffer[bufferIndex] == ','){
         question[questionIndex] = '\0';
         qNumber++;
         // create the root node and set it in the tree
@@ -109,20 +114,21 @@ MQDecisionTree* mqBuildTree(char* file_name){
                                            
 // goes through all the items in the file and adds
 // them to the tree in the correct places                                         
-void mqPopulateTree(MQDecisionTree* tree, char* file_name){
+void mqPopulateTree(MQDecisionTree* tree, char* fileName){
 
-  FILE* mqFile = fopen(argv[1], "r");
-  if (mqFile == NULL){ fprintf(stderr, "bad\n"); return 1;} 
+  FILE* mqFile = fopen(fileName, "r");
+  if (mqFile == NULL){ fprintf(stderr, "bad\n"); return;} 
  
   // flag to locate the 3+ lines in the file 
   int flag = 0;
   // set root as cur 
   MQDecisionTreeNode* cur = tree->root;   
+  int numItems;
 
   // the buffer limit may be iffy.
   // change to large number before submission-------------------------------------------------------------------
   char buffer[1051];
-  while (fgets(buffer,1050,playersData) != NULL){
+  while (fgets(buffer,1050,mqFile) != NULL){
     if (flag == 0){
       numItems = atoi(buffer);
       flag++;
@@ -142,13 +148,13 @@ void mqPopulateTree(MQDecisionTree* tree, char* file_name){
 	if (itemIndex == 52 || bufferIndex > 1050){
 	  printf("ERROR: item length out of bounds OR buffer line wrap issues");
 	}
-	if (buffer[index] == ','){
+	if (buffer[bufferIndex] == ','){
 	  item[itemIndex] = '\0';
 	  qNumber++;
 	  // save name and find where to insert the node
 	  if (qNumber == 1){
 	    // this may cause problems ----------------------------------------------------------------
-	    itemName == item;
+	    itemName = item;
 	  }
 	  // go down the tree  
 	  else if (item[0] == '1'){
