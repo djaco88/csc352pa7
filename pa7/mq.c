@@ -87,7 +87,7 @@ MQDecisionTree* mqBuildTree(char* file_name){
         } 
         // add new nodes to leaves
         else {
-	  addNode(root->root, question, qNum);
+	  addNode(root->root, question);
         }
         questionIndex = 0;
         bufferIndex++;
@@ -96,8 +96,12 @@ MQDecisionTree* mqBuildTree(char* file_name){
         question[questionIndex] = buffer[bufferIndex]; 
         questionIndex++;
         bufferIndex++;
+      }
     }
   }
+  // *I think I fixed this lol*
+  // NEED TO ADD THE LAST QUESTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  addNode(root->root, question);
   fflush(mqFile);
   fclose(mqFile);
   return newMq;
@@ -111,60 +115,76 @@ void mqPopulateTree(MQDecisionTree* tree, char* file_name){
   if (mqFile == NULL){ fprintf(stderr, "bad\n"); return 1;} 
  
   // flag to locate the 3+ lines in the file 
-  int flag = 0; 
-    
+  int flag = 0;
+  // set root as cur 
+  MQDecisionTreeNode* cur = tree->root;   
 
   // the buffer limit may be iffy.
   // change to large number before submission-------------------------------------------------------------------
   char buffer[1051];
   while (fgets(buffer,1050,playersData) != NULL){
-    // I think I can take this out------------------------------------------------------------------------------
     if (flag == 0){
       numItems = atoi(buffer);
       flag++;
     } else if (flag == 1){
       flag++;
     } else {
-
-    int bufferIndex=0;
-    int itemIndex=0;
-    char item[51];
-    char itemName[51];
-    int iNumber = 0;
-    // loop through each char in the 2nd line of the buffer
-    // at each ',' add the stored char[] as nodes to all leaves
-    // in the tree
-    while(buffer[bufferIndex] != '\0'){
-      //Just in case, make sure no item in more than 50 chars
-      if (itemIndex == 52 || bufferIndex > 1050){
-        printf("ERROR: item length out of bounds OR buffer line wrap issues");
+      int bufferIndex=0;
+      int itemIndex=0;
+      char item[51];
+      char itemName[51];
+      int qNumber = 0;
+      // loop through each char in the 2nd line of the buffer
+      // at each ',' add the stored char[] as nodes to all leaves
+      // in the tree
+      while(buffer[bufferIndex] != '\0'){
+	//Just in case, make sure no item in more than 50 chars
+	if (itemIndex == 52 || bufferIndex > 1050){
+	  printf("ERROR: item length out of bounds OR buffer line wrap issues");
+	}
+	if (buffer[index] == ','){
+	  item[itemIndex] = '\0';
+	  qNumber++;
+	  // save name and find where to insert the node
+	  if (qNumber == 1){
+	    // this may cause problems ----------------------------------------------------------------
+	    itemName == item;
+	  }
+	  // go down the tree  
+	  else if (item[0] == '1'){
+	    cur = cur->yes;
+	  } else {
+	    cur = cur->no;
+	  }
+	  itemIndex = 0;
+	  bufferIndex++;
+	} 
+	else {
+	  item[itemIndex] = buffer[bufferIndex]; 
+	  itemIndex++;
+	  bufferIndex++;
+	}
       }
-      if (buffer[index] == ','){
-        item[itemIndex] = '\0';
-        iNumber++;
-        // save name and find where to insert the node
-        if (iNumber == 1){
-          // this may cause problems ----------------------------------------------------------------
-          itemName == item;
-        } 
-        // add new nodes to leaves
-        else {
-	  addNode(root->root, item, qNum);
-        }
-        itemIndex = 0;
-        bufferIndex++;
-      } 
-      else {
-        item[itemIndex] = buffer[bufferIndex]; 
-        itemIndex++;
-        bufferIndex++;
     }
   }
+  // TODO: finish the process. at this point i should have the last y/n value stored at item[0]
+  // I need to malloc space for the name, add the count of answers, and somehow differenciate between yes and no answers
   fflush(mqFile);
   fclose(mqFile);
 }
-                                           
+                       
+void freeNodes(MQDecisionTreeNode* cur){
+  if (cur->yes == NULL){
+    // TODO: FREE THE ANSWER SPACE############################################################################
+    free(cur);
+    return;
+  }
+  freeNodes(cur->yes);
+  freeNodes(cur->no);
+  free(cur);
+}                    
 //                                         
-void MQ_free_tree(MQDecisionTree* tree){
+void mqFreetree(MQDecisionTree* tree){
+  freeNodes(tree->root);
 
 } 
