@@ -6,29 +6,44 @@ Purpose: implement the zstr library fucntion
 #include "mq.h"
 
 //
-void printNodes(MQDecisionTreeNode* node){
-  if (node->yes == NULL){
-    printf("\n-y->");
-    printf("\n-n->");
+void printNodes(MQDecisionTreeNode* node, int indent){
+  printf("[%s]", node->text);
+  if (node->yes == NULL || node->no == NULL){
+    printf("\n");
+    for (int i = 0; i < indent; i++){
+      printf(" ");
+    }
+    printf("-y->");
+    printf("\n");
+    for (int i = 0; i < indent; i++){
+      printf(" ");
+    }
+    printf("-n->");
     return;
   }
-  printf("%s", node->text);
-  printf("\n-y-> ");
-  printNodes(node->yes);
-  printf("\n-n-> ");
-  printNodes(node->no);
+  printf("\n");
+  for (int i = 0; i < indent; i++){
+    printf(" ");
+  }
+  printf("-y->");
+  printNodes(node->yes, indent+3);
+  printf("\n");
+  for (int i = 0; i < indent; i++){
+    printf(" ");
+  }
+  printf("-n->");
+  printNodes(node->no, indent+3);
 }
 
 //                                         
 void mqPrintTree(MQDecisionTree* root){
-  printNodes(root->root);
+  printNodes(root->root, 0);
 }
 
 // build single node
 // this needs a lot of work
 MQDecisionTreeNode* createNode(char txt[]){
   MQDecisionTreeNode* mq = malloc(sizeof(MQDecisionTreeNode));
-  printf("%s\n",txt);
   // copy the given string into the text var in the node
   for (int i = 0; i < 49; i++){
     mq->text[i] = txt[i];
@@ -36,6 +51,7 @@ MQDecisionTreeNode* createNode(char txt[]){
       break;
     }
   }
+  //printf("%s\n",mq->text);
   mq->yes = NULL;
   mq->no = NULL;
   mq->num_answers = 0;
@@ -131,7 +147,29 @@ MQDecisionTree* mqBuildTree(char* fileName){
   fclose(mqFile);
   return root;
 }
-                                      
+
+
+//
+char** getNewAnswers(int numAns, int yN, char** oldAns, char toAdd[]){
+  char new[numAns][50] = malloc(sizeof(char[numAns][50]));
+  for (int i = 0; i<numAns-1; i++){
+    for (int j = 0; j<50; j++){
+      new[i][j] = oldAns[i][j];
+      if(new[i][j] == '\0'){
+        break;
+      }
+    }
+  }
+  for (int i = 0; i < 50; i++){
+    new[numAns-1][i] = toAdd[i];
+    if(toAdd[i] == '\0'){
+      break;
+    }
+  }
+  return new;
+}
+
+
 // goes through all the items in the file and adds
 // them to the tree in the correct places                                         
 void mqPopulateTree(MQDecisionTree* tree, char* fileName){
@@ -145,6 +183,8 @@ void mqPopulateTree(MQDecisionTree* tree, char* fileName){
   MQDecisionTreeNode* cur = tree->root;   
   int numItems;
 
+  char item[50];
+  char itemName[50];
   // the buffer limit may be iffy.
   // change to large number before submission-------------------------------------------------------------------
   char buffer[1051];
@@ -158,8 +198,7 @@ void mqPopulateTree(MQDecisionTree* tree, char* fileName){
     } else {
       int bufferIndex=0;
       int itemIndex=0;
-      char item[50];
-      char itemName[50];
+      item[0]='\0';
       int qNumber = 0;
       // loop through each char in the 2nd line of the buffer
       // at each ',' add the stored char[] as nodes to all leaves
@@ -201,13 +240,16 @@ void mqPopulateTree(MQDecisionTree* tree, char* fileName){
   }
   // TODO: finish the process. at this point i should have the last y/n value stored at item[0] (either 1 or 0)
   // I need to malloc space for the name, add the count of answers, and somehow differenciate between yes and no answers
+  char** newAnswers = getNewAnswers(++cur->num_answers, item[0], cur->answers, itemName);
+  free(cur->answers);
+  cur->answers = newAnswers;
   fflush(mqFile);
   fclose(mqFile);
 }
                        
 void freeNodes(MQDecisionTreeNode* cur){
   if (cur->yes == NULL){
-    // TODO: FREE THE ANSWER SPACE############################################################################
+    free(cur->answers);
     free(cur);
     return;
   }
