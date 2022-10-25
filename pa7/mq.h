@@ -21,13 +21,13 @@ MQDecisionTreeNode* root;
 
 
 //
-void MQ_print_tree(MQDecisionTree* root);
+void mqPrintTree(MQDecisionTree* root);
 
 //
-MQDecisionTree* MQ_build_tree(char* file_name);
+MQDecisionTree* mqBuildTree(char* file_name);
 
 //
-void MQ_populate_tree(MQDecisionTree* tree, char* file_name);
+void mqPopulateTree(MQDecisionTree* tree, char* file_name);
 
 //
-void MQ_free_tree(MQDecisionTree* tree);
+void mqFreeTree(MQDecisionTree* tree);

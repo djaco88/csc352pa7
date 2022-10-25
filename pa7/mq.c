@@ -8,19 +8,19 @@ Purpose: implement the zstr library fucntion
 //
 void printNodes(MQDecisionTreeNode* node){
   if (node->yes == NULL){
-    printf("-y-> ");
-    printf("-n-> ");
+    printf("\n-y->");
+    printf("\n-n->");
     return;
   }
-  printf("%s\n", node->text);
-  printf("-y-> ");
+  printf("%s", node->text);
+  printf("\n-y-> ");
   printNodes(node->yes);
-  printf("-n-> ");
+  printf("\n-n-> ");
   printNodes(node->no);
 }
 
 //                                         
-void MQ_print_tree(MQDecisionTree* root){
+void mqPrintTree(MQDecisionTree* root){
   printNodes(root->root);
 }
 
@@ -28,6 +28,7 @@ void MQ_print_tree(MQDecisionTree* root){
 // this needs a lot of work
 MQDecisionTreeNode* createNode(char txt[]){
   MQDecisionTreeNode* mq = malloc(sizeof(MQDecisionTreeNode));
+  printf("%s\n",txt);
   // copy the given string into the text var in the node
   for (int i = 0; i < 49; i++){
     mq->text[i] = txt[i];
@@ -80,17 +81,22 @@ MQDecisionTree* mqBuildTree(char* fileName){
   while (fgets(buffer,1050,mqFile) != NULL){
     if (flag == 0){
       flag++;
+      continue;
+    } if (flag == -1){
+      continue;
     }
+    printf("%s\n", buffer);
     int bufferIndex=0;
     int questionIndex=0;
     int qNumber = 0;
     // loop through each char in the 2nd line of the buffer
     // at each ',' add the stored char[] as nodes to all leaves
     // in the tree
-    while(buffer[bufferIndex] != '\0'){
+    while(buffer[bufferIndex] != '\n'){
       //Just in case, make sure no question in more than 50 chars
       if (questionIndex == 52 || bufferIndex > 1050){
         printf("ERROR: question length out of bounds OR buffer line wrap issues");
+        break;
       }
       // need to connect nodes to tree
       if (buffer[bufferIndex] == ','){
@@ -112,10 +118,14 @@ MQDecisionTree* mqBuildTree(char* fileName){
         questionIndex++;
         bufferIndex++;
       }
+      if(buffer[bufferIndex] == '\n'){
+        question[questionIndex] = '\0';
+      }
+    }
+    if (buffer[bufferIndex] == '\n'){
+      flag = -1;
     }
   }
-  // *I think I fixed this lol*
-  // NEED TO ADD THE LAST QUESTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   addNode(root->root, question);
   fflush(mqFile);
   fclose(mqFile);
@@ -206,7 +216,7 @@ void freeNodes(MQDecisionTreeNode* cur){
   free(cur);
 }                    
 //                                         
-void mqFreetree(MQDecisionTree* tree){
+void mqFreeTree(MQDecisionTree* tree){
   freeNodes(tree->root);
 
 } 
