@@ -5,7 +5,8 @@ Purpose: implement the zstr library fucntion
 #include <stdio.h>
 #include "mq.h"
 
-//
+// prints all nodes
+// prints all answers at leaf nodes
 void printNodes(MQDecisionTreeNode* node, int indent){
   printf("[%s]", node->text);
   if (node->yes == NULL || node->no == NULL){
@@ -50,17 +51,17 @@ void printNodes(MQDecisionTreeNode* node, int indent){
     for (int i = 0; i < indent; i++){
       printf(" ");
     }
-    printf("-y->");
+    printf("-y-> ");
     if (yesIndex>0){
-      printf(" |%s", yeses);
+      printf("|%s", yeses);
     }
     printf("\n");
     for (int i = 0; i < indent; i++){
       printf(" ");
     }
-    printf("-n->");
+    printf("-n-> ");
     if (noIndex>0){
-      printf(" |%s", nos);
+      printf("|%s", nos);
     }
     return;
   }
@@ -68,19 +69,20 @@ void printNodes(MQDecisionTreeNode* node, int indent){
   for (int i = 0; i < indent; i++){
     printf(" ");
   }
-  printf("-y->");
-  printNodes(node->yes, indent+3);
+  printf("-y-> ");
+  printNodes(node->yes, indent+4);
   printf("\n");
   for (int i = 0; i < indent; i++){
     printf(" ");
   }
-  printf("-n->");
-  printNodes(node->no, indent+3);
+  printf("-n-> ");
+  printNodes(node->no, indent+4);
 }
 
 //                                         
 void MQ_print_tree(MQDecisionTree* root){
   printNodes(root->root, 0);
+  printf("\n");
 }
 
 // build single node

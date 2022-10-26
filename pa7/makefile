@@ -7,6 +7,6 @@ game: game.c
 	gcc -Wall -Werror -std=c11 -g -o game game.c mq.o
  
 clean:
-	rm mq.o
-	rm game
+	rm -f mq.o
+	rm -f game
 
