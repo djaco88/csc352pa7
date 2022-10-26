@@ -79,7 +79,7 @@ void printNodes(MQDecisionTreeNode* node, int indent){
 }
 
 //                                         
-void mqPrintTree(MQDecisionTree* root){
+void MQ_print_tree(MQDecisionTree* root){
   printNodes(root->root, 0);
 }
 
@@ -121,7 +121,7 @@ void addNode(MQDecisionTreeNode* node, char txt[]){
 // Each question will be added as both children of all the 
 // leaf nodes on the tree.
 // The tree will be returned                                        
-MQDecisionTree* mqBuildTree(char* fileName){
+MQDecisionTree* MQ_build_tree(char* fileName){
 
   FILE* mqFile = fopen(fileName, "r");
   if (mqFile == NULL){ fprintf(stderr, "bad\n"); return NULL;} 
@@ -216,7 +216,7 @@ char** getNewAnswers(int numAns, char yN, char** oldAns, char toAdd[]){
 
 // goes through all the items in the file and adds
 // them to the tree in the correct places                                         
-void mqPopulateTree(MQDecisionTree* tree, char* fileName){
+void MQ_populate_tree(MQDecisionTree* tree, char* fileName){
   FILE* mqFile = fopen(fileName, "r");
   if (mqFile == NULL){ fprintf(stderr, "bad\n"); return;} 
  
@@ -306,7 +306,7 @@ void freeNodes(MQDecisionTreeNode* cur){
   free(cur);
 }                    
 //                                         
-void mqFreeTree(MQDecisionTree* tree){
+void MQ_free_tree(MQDecisionTree* tree){
   freeNodes(tree->root);
   free(tree);
 } 
